@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import useInput from '@/lib/hooks/useInput';
+import { emailRegex, passwordRegex } from '@/lib/utils/validate';
+import { signUp } from '@/api/auth';
+import { ACCESS_TOKEN } from '@/constants/token';
 
 const SignUp = () => {
-  const token = localStorage.getItem('access-token');
+  const token = localStorage.getItem(ACCESS_TOKEN);
 
   // 로그인 여부에 따른 리다이렉트 처리
   useEffect(() => {
@@ -25,7 +27,7 @@ const SignUp = () => {
   const [isPassword, setIsPassword] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!email.includes('@')) {
+    if (emailRegex(email)) {
       setEmailError('이메일에는 @가 포함되어야 합니다.');
       setIsEmail(false);
     } else {
@@ -35,7 +37,7 @@ const SignUp = () => {
   }, [email]);
 
   useEffect(() => {
-    if (password.length < 8) {
+    if (passwordRegex(password)) {
       setPasswordError('비밀번호는 8자리 이상이여야 합니다.');
       setIsPassword(false);
     } else {
@@ -64,11 +66,7 @@ const SignUp = () => {
       e.preventDefault();
       if (!isClick) {
         setIsClick(true);
-        axios
-          .post('https://pre-onboarding-selection-task.shop/auth/signup', {
-            email,
-            password,
-          })
+        signUp(email, password)
           .then(() => {
             alert('회원가입을 성공했습니다.');
             navigate('/signin');

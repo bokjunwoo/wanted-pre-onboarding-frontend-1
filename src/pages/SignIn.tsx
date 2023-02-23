@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import useInput from '@/lib/hooks/useInput';
+import { signIn } from '@/api/auth';
+import { emailRegex, passwordRegex } from '@/lib/utils/validate';
+import { ACCESS_TOKEN } from '@/constants/token';
 
 const SignIn = () => {
-  const token = localStorage.getItem('access-token');
+  const token = localStorage.getItem(ACCESS_TOKEN);
 
   // 로그인 여부에 따른 리다이렉트 처리
   useEffect(() => {
@@ -25,7 +27,7 @@ const SignIn = () => {
   const [isPassword, setIsPassword] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!email.includes('@')) {
+    if (emailRegex(email)) {
       setEmailError('이메일에는 @가 포함되어야 합니다.');
       setIsEmail(false);
     } else {
@@ -35,7 +37,7 @@ const SignIn = () => {
   }, [email]);
 
   useEffect(() => {
-    if (password.length < 8) {
+    if (passwordRegex(password)) {
       setPasswordError('비밀번호는 8자리 이상이여야 합니다.');
       setIsPassword(false);
     } else {
@@ -59,26 +61,26 @@ const SignIn = () => {
     }
   }, [isEmail, isPassword]);
 
-  const onSubmitForm = useCallback(() => {
-    if (!isClick) {
-      setIsClick(true);
-      axios
-        .post('https://pre-onboarding-selection-task.shop/auth/signin', {
-          email,
-          password,
-        })
-        .then((res) => {
-          localStorage.setItem('access-token', res.data.access_token);
-          alert('로그인을 성공했습니다.');
-          navigate('/todo');
-          setIsClick(false);
-        })
-        .catch(() => {
-          alert('아이디와 비밀번호를 확인해주세요');
-          setIsClick(false);
-        });
-    }
-  }, [email, password, navigate, isClick]);
+  const onSubmitForm = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!isClick) {
+        setIsClick(true);
+        signIn(email, password)
+          .then((res) => {
+            localStorage.setItem(ACCESS_TOKEN, res.data.access_token);
+            alert('로그인을 성공했습니다.');
+            navigate('/todo');
+            setIsClick(false);
+          })
+          .catch(() => {
+            alert('아이디와 비밀번호를 확인해주세요');
+            setIsClick(false);
+          });
+      }
+    },
+    [email, password, navigate, isClick],
+  );
 
   return (
     <>
