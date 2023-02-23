@@ -22,13 +22,14 @@ const TodoPage = () => {
 
   useEffect(() => {
     getTodos();
-  }, []);
+  }, [getTodos]);
+
   return (
     <div>
       <TodoForm submitFn={onSubmit} />
       <ul>
         {todos.map((todo) => {
-          return <TodoItem key={todo.id} todo={todo} />;
+          return <TodoItem key={todo.id} todo={todo} getTodos={getTodos} />;
         })}
       </ul>
     </div>
