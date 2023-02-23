@@ -31,6 +31,7 @@ const SignInpage = () => {
         })
         .catch((err) => {
           alert(err.response.data.log || err.log);
+          setIsProcessing(false);
         });
     }
   };
