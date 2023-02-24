@@ -12,9 +12,9 @@ const TodoItem = ({ todo, getTodos }: ITodoItem) => {
   }, []);
 
   // 수정 버튼
-  const [amendButton, setAmendbutton] = useState(true);
+  const [isModify, setIsModify] = useState(true);
   const amendButtonChange = useCallback(() => {
-    setAmendbutton((prev) => !prev);
+    setIsModify((prev) => !prev);
   }, []);
 
   // 글 수정 폼
@@ -26,8 +26,7 @@ const TodoItem = ({ todo, getTodos }: ITodoItem) => {
         updateTodo(text, todo.id, todo.isCompleted)
           .then(() => {
             getTodos();
-            setAmendbutton(true);
-            setText(text);
+            setIsModify(true);
             setIsClick(false);
           })
           .catch((err) => {
@@ -75,7 +74,7 @@ const TodoItem = ({ todo, getTodos }: ITodoItem) => {
         />
       </label>
 
-      {amendButton ? (
+      {isModify ? (
         <>
           <span>{todo.todo}</span>
           <button data-testid="modify-button" onClick={amendButtonChange}>
